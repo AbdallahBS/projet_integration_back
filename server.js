@@ -1,4 +1,5 @@
 const express = require('express');
+require('dotenv').config();
 
 const sequelize = require('./db/database')  // Import the database connection pool
 const authRoutes = require('./routes/auth.routes');  // 
