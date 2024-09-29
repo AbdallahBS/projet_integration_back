@@ -58,6 +58,8 @@ const signup = async (req, res) => {
 };
 //signin
 const signin = async (req, res) => {
+  console.log("signin called" , req.body.username,req.body.password);
+  
   const { username, password } = req.body;
 
   try {
@@ -71,7 +73,7 @@ const signin = async (req, res) => {
 
     // If the user is not found in both tables, return an error
     if (!user) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(401).json({ error: 'User not found' });
     }
 
     // Compare the password with the hashed password stored in the database
