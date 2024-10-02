@@ -22,10 +22,7 @@ const Superadmin = sequelize.define('Admin', {
     allowNull: false,
     defaultValue: 'superadmin',
   },
-  avatar: {
-    type: DataTypes.STRING, 
-    allowNull: true,
-  },
+
   
 }, {
   timestamps: true,
