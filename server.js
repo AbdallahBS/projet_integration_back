@@ -5,6 +5,10 @@ const bodyParser = require('body-parser');
 
 const sequelize = require('./db/database')  // Import the database connection pool
 const authRoutes = require('./routes/auth.routes');  // 
+const eleveRoutes = require('./routes/eleve.routes');  // 
+
+const enseignantRoutes = require('./routes/enseignant.routes');  // 
+
 const app = express();
 const port = 3000;
 app.use(cors({
@@ -23,8 +27,9 @@ app.use(express.json());
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
+app.use('/eleve', eleveRoutes);
 app.use('/auth', authRoutes);
-
+app.use('/enseignants', enseignantRoutes);
 
 
 const startServer = async () => {
