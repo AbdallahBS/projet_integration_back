@@ -3,6 +3,8 @@ const Enseignant = require('../models/enseignant.model'); // Assuming this is th
 // Create a new Enseignant
 const createEnseignant = async (req, res) => {
   const { nom, prenom, numerotel, classe } = req.body;
+  console.log(nom,prenom,numerotel,classe);
+  
   
   try {
     const newEnseignant = await Enseignant.create({ nom, prenom, numerotel, classe });
