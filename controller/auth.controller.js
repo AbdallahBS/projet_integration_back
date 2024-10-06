@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 
-const Superadmin = require('../models/superadmin.model'); // Import the Superadmin model
-const Admin = require('../models/admin.model'); // Import the Superadmin model
+const Admin = require('../models/admin.model'); // Import the Admin model
 const Appstate = require('../models/appstate.model');
 
 const generateTokenAndSetCookie = require('../utils/generateTokenAndSendCookies');
@@ -29,7 +28,7 @@ const initializeApp = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const superAdmin = await Superadmin.create({ mdp: hashedPassword, username, role: 'superadmin' });
+    const superAdmin = await Admin.create({ mdp: hashedPassword, username, role: 'superadmin' });
 
     await Appstate.create({ isInitialized: true, superAdminId: superAdmin.id });
 
@@ -96,38 +95,33 @@ const signin = async (req, res) => {
 
   try {
 
-    // Check if the user exists in Superadmin table
-    let user = await Superadmin.findOne({ where: { username } });
+    // Check if the user exists in Admin table
+    let user = await Admin.findOne({ where: { username } });
 
-    // If the user is not found in Superadmin, check the Admin table
+
+    // If the user is not found in both tables, return an error
     if (!user) {
-      user = await Admin.findOne({ where: { username } });
-
-
-      // If the user is not found in both tables, return an error
-      if (!user) {
-        return res.status(401).json({ error: 'User not found' });
-      }
-
-      // Compare the password with the hashed password stored in the database
-      const isPasswordValid = await bcrypt.compare(password, user.mdp);
-      if (!isPasswordValid) {
-        return res.status(401).json({ error: 'Invalid password' });
-      }
-
-      // Successful login
-      generateTokenAndSetCookie(res, user.id, user.username, password, user.role);
-
-      res.status(200).json({
-        message: 'Login successful',
-        user: {
-          id: user.id,
-          username: user.username,
-          avatar: user.avatar,
-          role: user.role,
-        }, // Return user info without password
-      });
+      return res.status(401).json({ error: 'User not found' });
     }
+
+    // Compare the password with the hashed password stored in the database
+    const isPasswordValid = await bcrypt.compare(password, user.mdp);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid password' });
+    }
+
+    // Successful login
+    generateTokenAndSetCookie(res, user.id, user.username, password, user.role);
+
+    res.status(200).json({
+      message: 'Login successful',
+      user: {
+        id: user.id,
+        username: user.username,
+        avatar: user.avatar,
+        role: user.role,
+      }, // Return user info without password
+    });
   } catch (error) {
     console.error(error.message);
     res.status(500).json({ error: 'Internal server error' });
