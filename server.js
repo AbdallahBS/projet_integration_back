@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const sequelize = require('./db/database')  // Import the database connection pool
 const authRoutes = require('./routes/auth.routes');  // 
 const eleveRoutes = require('./routes/eleve.routes');  // 
-
+const adminRoutes = require('./routes/admin.routes');
 const enseignantRoutes = require('./routes/enseignant.routes');  // 
 
 const app = express();
@@ -30,6 +30,8 @@ app.get('/', (req, res) => {
 app.use('/eleve', eleveRoutes);
 app.use('/auth', authRoutes);
 app.use('/enseignants', enseignantRoutes);
+app.use('/api', adminRoutes);
+
 
 
 const startServer = async () => {
