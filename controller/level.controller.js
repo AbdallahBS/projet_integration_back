@@ -17,9 +17,11 @@ async createLevel(req, res) {
 // Get all levels
 async getAllLevels(req, res) {
   try {
-    const levels = await Level.findAll({
-      include: [{ model: Eleve, as: 'liste' }], // Include list of students
-    });
+    const levels = await Level.findAll(
+    //{
+    //  include: [{ model: Eleve, as: 'liste' }], // Include list of students
+    //}
+  );
     res.status(200).json(levels);
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving levels', error });

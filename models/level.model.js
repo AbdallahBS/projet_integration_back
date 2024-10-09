@@ -23,7 +23,7 @@ const Level = sequelize.define('Level', {
   tableName: 'levels', // Define the table name
 });
 
-Level.hasMany(Eleve, {
+/**Level.hasMany(Eleve, {
   foreignKey: 'levelId', // Foreign key in Eleve table
   as: 'liste', // Alias for the list of students
 });
@@ -32,6 +32,6 @@ Level.hasMany(Eleve, {
 Eleve.belongsTo(Level, {
   foreignKey: 'levelId',
   as: 'level',
-});
+});**/
 
 module.exports = Level;
