@@ -3,6 +3,7 @@ const {
     createEleve,
     getAllEleves,
     getEleveById,
+    getElevesByClasseId,
     updateEleve,
     deleteEleve
   } = require('../controller/eleve.controller');
@@ -11,6 +12,8 @@ const router = express.Router();
 router.post('/eleves', createEleve);
 
 router.get('/eleves',getAllEleves);
+
+router.get('/classe/:classeId/eleves', getElevesByClasseId);
 
 router.get('/eleves/:id', getEleveById);
 

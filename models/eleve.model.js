@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db/database'); // Assuming you have a config for your Sequelize instance
+const Classe = require('./classe.model'); // Import the Classe model
 
 const Eleve = sequelize.define('Eleve', {
   id: {
@@ -16,17 +17,25 @@ const Eleve = sequelize.define('Eleve', {
     type: DataTypes.STRING,
     allowNull: false,
   },
-  classe: {
-    type: DataTypes.STRING,
+
+  classeId: {
+    type: DataTypes.UUID,
     allowNull: false,
-  },
-  niveau: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    references: {
+      model: 'classes', // 'classes' refers to table name
+      key: 'id',
+    },
   },
 }, {
   timestamps: true,
   tableName: 'eleves', // Define the table name
 });
+
+
+
+//Eleve.belongsTo(Classe, {
+///  foreignKey: 'classeId',
+ // as: 'classe',
+//});
 
 module.exports = Eleve;

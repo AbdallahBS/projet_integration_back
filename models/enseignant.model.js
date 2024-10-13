@@ -20,10 +20,7 @@ const Enseignant = sequelize.define('Enseignant', {
     type: DataTypes.STRING,
     allowNull: false, // Assuming phone number is required
   },
-  classe: {
-    type: DataTypes.ARRAY(DataTypes.STRING), // List of classes
-    allowNull: false,
-  },
+
 }, {
   timestamps: true,
   tableName: 'enseignants', // Define the table name

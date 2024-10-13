@@ -2,13 +2,14 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const { initModels } = require('./models');  // Import the initialization function
 
 const sequelize = require('./db/database')  // Import the database connection pool
 const authRoutes = require('./routes/auth.routes');  // 
 const eleveRoutes = require('./routes/eleve.routes');  // 
 const adminRoutes = require('./routes/admin.routes');
 const enseignantRoutes = require('./routes/enseignant.routes');  // 
-const levelRoutes = require('./routes/level.routes');  // 
+const classeRoutes = require('./routes/classe.routes');  // 
 
 const app = express();
 const port = 3000;
@@ -29,10 +30,11 @@ app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 app.use('/eleve', eleveRoutes);
+app.use('/classe', classeRoutes);
 app.use('/auth', authRoutes);
 app.use('/enseignants', enseignantRoutes);
 app.use('/api', adminRoutes);
-app.use('/level', levelRoutes)
+
 
 
 
@@ -40,6 +42,9 @@ const startServer = async () => {
   try {
     await sequelize.authenticate(); // Test database connection
     console.log('Database connected successfully.');
+
+    initModels();  // Initialize models and associations
+
 
     // Sync all models
     await sequelize.sync(); // Creates the tables if they do not exist (and does not remove existing ones)
