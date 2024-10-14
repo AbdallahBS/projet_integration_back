@@ -7,6 +7,7 @@ router.post('/classes', classeController.createClasse);
 
 // Route to get all classes
 router.get('/classes', classeController.getAllClasses);
+router.get('/classesDetail', classeController.getAllClassesDetails);
 
 // Route to get a single class by ID
 router.get('/classes/:id', classeController.getClasseById);

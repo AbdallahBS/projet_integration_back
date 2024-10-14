@@ -1,4 +1,8 @@
 const Classe = require('../models/classe.model');
+const Eleve = require('../models/eleve.model');
+const Enseignant = require('../models/enseignant.model');
+const EnseignantClasse = require('../models/enseignantClasse.model');
+
 
 const classeController = {
 
@@ -13,6 +17,57 @@ const classeController = {
       res.status(500).json({ message: 'Error creating class', error: error.message });
     }
   },
+// Get all classes with the number of students and teachers
+async getAllClassesDetails(req, res) {
+  try {
+    const classes = await Classe.findAll({
+      include: [
+        {
+          model: Eleve,
+          as: 'eleves',
+          attributes: ['id', 'nom', 'prenom'], // Only include necessary fields
+        },
+        {
+          model: Enseignant,
+          as: 'enseignants',
+          through: {
+            model: EnseignantClasse, // Specify the junction model to retrieve matiere
+            attributes: ['matiere'], // Include matiere field from the junction table
+          },
+          attributes: ['id', 'nom', 'prenom'], // Include only the needed fields from Enseignant
+        }
+      ]
+    });
+
+    // Format the response to include the student count and teacher info
+    const formattedClasses = classes.map(classe => {
+      return {
+        id: classe.id,
+        nomDeClasse: classe.nomDeClasse,
+        niveau: classe.niveau,
+        studentCount: classe.eleves.length,
+        students: classe.eleves.map(eleve =>({
+          id: eleve.id,
+          nom: eleve.nom,
+          prenom: eleve.prenom,
+        })), 
+        enseignants: classe.enseignants.map(enseignant => ({
+          id: enseignant.id,
+          nom: enseignant.nom,
+          prenom: enseignant.prenom,
+          matiere: enseignant.EnseignantClasse.matiere, // Get matiere from the junction table
+        })),
+        createdAt: classe.createdAt,
+        updatedAt: classe.updatedAt
+      };
+    });
+
+    res.status(200).json({ message: 'Classes retrieved successfully', classes: formattedClasses });
+  } catch (error) {
+    console.error('Error retrieving classes:', error);
+    res.status(500).json({ message: 'Error retrieving classes', error: error.message });
+  }
+},
 
   // Get all classes
   async getAllClasses(req, res) {
@@ -24,6 +79,9 @@ const classeController = {
       res.status(500).json({ message: 'Error retrieving classes', error: error.message });
     }
   },
+
+
+  
 
   // Get a single class by ID
   async getClasseById(req, res) {
