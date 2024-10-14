@@ -10,6 +10,8 @@ const eleveRoutes = require('./routes/eleve.routes');  //
 const adminRoutes = require('./routes/admin.routes');
 const enseignantRoutes = require('./routes/enseignant.routes');  // 
 const classeRoutes = require('./routes/classe.routes');  // 
+const enseignantClasseRoutes = require('./routes/enseignantClasse.routes');  // 
+
 
 const app = express();
 const port = 3000;
@@ -34,7 +36,7 @@ app.use('/classe', classeRoutes);
 app.use('/auth', authRoutes);
 app.use('/enseignants', enseignantRoutes);
 app.use('/api', adminRoutes);
-
+app.use('/enseignantClasse', enseignantClasseRoutes);
 
 
 
