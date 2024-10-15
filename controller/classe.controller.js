@@ -2,6 +2,7 @@ const Classe = require('../models/classe.model');
 const Eleve = require('../models/eleve.model');
 const Enseignant = require('../models/enseignant.model');
 const EnseignantClasse = require('../models/enseignantClasse.model');
+const Historique = require('../models/historique.model'); // Adjust the path as needed
 
 
 const classeController = {
@@ -11,6 +12,18 @@ const classeController = {
     try {
       const { nomDeClasse, niveau } = req.body;
       const newClasse = await Classe.create({ nomDeClasse, niveau });
+
+
+      const adminId = req.body.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
+      const role = req.body.adminRole  // Assuming the admin's role is available in the request
+      console.log(adminId,role);
+      
+      await Historique.create({
+        adminId: adminId,               // ID of the admin performing the action
+        role: role,                     // Role of the admin
+        typeofaction: 'إضافة قسم',   // Arabic for 'add student'
+        time: new Date()                // Current time of the action
+      });
       res.status(201).json({ message: 'Class created successfully', classe: newClasse });
     } catch (error) {
       console.error('Error creating class:', error);

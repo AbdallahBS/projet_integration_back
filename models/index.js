@@ -2,6 +2,8 @@ const Eleve = require('./eleve.model');
 const Classe = require('./classe.model');
 const EnseignantClasse = require('./enseignantClasse.model');
 const Enseignant = require('./enseignant.model');
+const Historique = require('./historique.model'); // Import Historique model
+const Admin = require('./admin.model'); // Adjust the path as necessary
 
 // Set up associations after all models are defined
 
@@ -13,6 +15,20 @@ Eleve.belongsTo(Classe, { foreignKey: 'classeId', as: 'classe' });
 Enseignant.belongsToMany(Classe, { through: EnseignantClasse, foreignKey: 'enseignantId', as: 'classes' });
 Classe.belongsToMany(Enseignant, { through: EnseignantClasse, foreignKey: 'classeId', as: 'enseignants' });
 
+
+
+
+Admin.hasMany(Historique, {
+  foreignKey: 'adminId', // This should match the key in the Historique model
+  sourceKey: 'id',
+  as: 'historiques' // Optional alias for association
+});
+
+Historique.belongsTo(Admin, {
+  foreignKey: 'adminId', // This should match the key in the Historique model
+  targetKey: 'id',
+  as: 'admin' // Optional alias for association
+});
 const initModels = async () => {
   try {
     // Ensure all models are initialized and synced here
@@ -20,6 +36,7 @@ const initModels = async () => {
     await Eleve.sync(); // Then sync Eleve
     await Enseignant.sync(); // Sync Enseignant next
     await EnseignantClasse.sync(); // Finally sync the junction table EnseignantClasse
+    await Historique.sync(); // Sync Historique
 
     console.log('All models were synchronized successfully.');
   } catch (error) {
@@ -32,5 +49,7 @@ module.exports = {
   Classe,
   Enseignant,
   EnseignantClasse,
+  Historique,
+
   initModels,
 };

@@ -5,17 +5,29 @@ const Classe = require('../models/classe.model'); // Import Classe model
 const eleveController = {
   // Create a new Eleve
   async createEleve(req, res) {
+
     try {
       const { nom, prenom, classeId } = req.body; // Only classId is taken for FK reference
 
       // Create a new Eleve instance
       const newEleve = await Eleve.create({ nom, prenom, classeId });
-
+      const adminId = req.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
+      const role = req.adminRole  // Assuming the admin's role is available in the request
+      console.log(role,adminId,nom);
+      
+      await Historique.create({
+        adminId: adminId,               // ID of the admin performing the action
+        role: role,                     // Role of the admin
+        typeofaction: 'إضافة تلميذ',   // Arabic for 'add student'
+        time: new Date()                // Current time of the action
+      });
       return res.status(201).json({ message: 'Élève créé avec succès', eleve: newEleve });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Erreur lors de la création de l\'élève', error });
     }
+
+
   },
 
   // Get all Eleves

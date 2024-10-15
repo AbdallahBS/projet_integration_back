@@ -11,6 +11,7 @@ const adminRoutes = require('./routes/admin.routes');
 const enseignantRoutes = require('./routes/enseignant.routes');  // 
 const classeRoutes = require('./routes/classe.routes');  // 
 const enseignantClasseRoutes = require('./routes/enseignantClasse.routes');  // 
+const dashboardRoutes = require('./routes/dashbord.routes');
 
 
 const app = express();
@@ -38,6 +39,7 @@ app.use('/enseignants', enseignantRoutes);
 app.use('/api', adminRoutes);
 app.use('/enseignantClasse', enseignantClasseRoutes);
 
+app.use('/api', dashboardRoutes);
 
 
 const startServer = async () => {

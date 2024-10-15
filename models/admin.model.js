@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db/database'); // Assuming you have a config for your Sequelize instance
+const Historique = require('./historique.model'); // Import Historique model
 
 const Superadmin = sequelize.define('Admin', {
   id: {
@@ -28,5 +29,6 @@ const Superadmin = sequelize.define('Admin', {
   timestamps: true,
   tableName: 'admins', 
 });
+
 
 module.exports = Superadmin;
