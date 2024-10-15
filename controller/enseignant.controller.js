@@ -1,4 +1,4 @@
-const Enseignant = require('../models/enseignant.model'); // Assuming this is the model file
+const Enseignant = require('../models/Enseignant.model');
 const Classe = require('../models/classe.model'); // Assuming this is the model file
 const EnseignantClasse = require('../models/enseignantClasse.model'); // Assuming this is the model file
 
@@ -57,7 +57,7 @@ const getEnseignantById = async (req, res) => {
         through: { attributes: ['matiere'] }, // Include 'matiere' from the junction table
       },
     });
-    
+
     if (!enseignant) {
       return res.status(404).json({ message: 'Enseignant not found' });
     }
