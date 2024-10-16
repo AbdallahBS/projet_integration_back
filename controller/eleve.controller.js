@@ -1,27 +1,34 @@
 const Eleve = require('../models/eleve.model'); // Adjust the path if necessary
 const Classe = require('../models/classe.model'); // Import Classe model
+<<<<<<< Updated upstream
 const Historique = require('../models/historique.model'); // Adjust the path as needed
+=======
+const Historique = require('../models/historique.model'); // Import Classe model
+
+>>>>>>> Stashed changes
 
 // Controller to manage Eleves
 const eleveController = {
   // Create a new Eleve
   async createEleve(req, res) {
     try {
-      const { nom, prenom, classe,adminId, adminRole  } = req.body;
-      const classeId = classe; // Extract class ID for FK reference
-  
-      // Check if an Eleve with the same nom, prenom, and classeId already exists
+      const { nom, prenom, classeId } = req.body.eleve; // Only classId is taken for FK reference
+
       const existingEleve = await Eleve.findOne({
         where: { nom, prenom, classeId }
       });
-   
+
       if (existingEleve) {
         // If the Eleve already exists, return a conflict status
         return res.status(409).json({ message: 'Cet élève existe déjà dans cette classe' });
       }
-  
-      // Create a new Eleve instance if no duplicate is found
+
+      // Create a new Eleve instance
       const newEleve = await Eleve.create({ nom, prenom, classeId });
+      const adminId = req.body.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
+      const role = req.body.adminRole  // Assuming the admin's role is available in the request
+      console.log(role, adminId, nom);
+
       await Historique.create({
         adminId: adminId, // ID of the admin performing the action
         role: adminRole, // Role of the admin
@@ -73,15 +80,16 @@ const eleveController = {
     try {
       const { classeId } = req.params;
       console.log(Eleve.associations);
-console.log(Classe.associations);
+      console.log(Classe.associations);
       console.log(classeId);
-       // Get the classeId from the request parameters
+      // Get the classeId from the request parameters
       const eleves = await Eleve.findAll({
         where: { classeId }, // Filter by classeId
-        include: 
-          { 
-           model: Classe,
-           as: 'classe' }, // Include related Classe data
+        include:
+        {
+          model: Classe,
+          as: 'classe'
+        }, // Include related Classe data
       });
 
       if (eleves.length === 0) {
@@ -101,7 +109,7 @@ console.log(Classe.associations);
   async updateEleve(req, res) {
     try {
       const { id } = req.params;
-      const { nom, prenom, classeId ,adminId, adminRole } = req.body; // Get classId for FK reference
+      const { nom, prenom, classeId, adminId, adminRole } = req.body; // Get classId for FK reference
 
       const eleve = await Eleve.findByPk(id);
 
@@ -131,7 +139,7 @@ console.log(Classe.associations);
     try {
       const { id } = req.params;
       const adminId = req.headers.adminid; // Retrieve adminId from headers
-      const adminRole = req.headers.adminrole;  
+      const adminRole = req.headers.adminrole;
       const eleve = await Eleve.findByPk(id);
 
       if (!eleve) {
