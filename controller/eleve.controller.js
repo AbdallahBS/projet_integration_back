@@ -1,11 +1,8 @@
 const Eleve = require('../models/eleve.model'); // Adjust the path if necessary
 const Classe = require('../models/classe.model'); // Import Classe model
-<<<<<<< Updated upstream
-const Historique = require('../models/historique.model'); // Adjust the path as needed
-=======
+
 const Historique = require('../models/historique.model'); // Import Classe model
 
->>>>>>> Stashed changes
 
 // Controller to manage Eleves
 const eleveController = {
