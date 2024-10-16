@@ -1,7 +1,6 @@
 const Eleve = require('../models/eleve.model'); // Adjust the path if necessary
 const Classe = require('../models/classe.model'); // Import Classe model
-
-const Historique = require('../models/historique.model'); // Import Classe model
+const Historique = require('../models/historique.model'); // Adjust the path as needed
 
 
 // Controller to manage Eleves
@@ -23,8 +22,7 @@ const eleveController = {
       // Create a new Eleve instance
       const newEleve = await Eleve.create({ nom, prenom, classeId });
       const adminId = req.body.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
-      const role = req.body.adminRole  // Assuming the admin's role is available in the request
-      console.log(role, adminId, nom);
+      const adminRole = req.body.adminRole  // Assuming the admin's role is available in the request
 
       await Historique.create({
         adminId: adminId, // ID of the admin performing the action
@@ -106,7 +104,10 @@ const eleveController = {
   async updateEleve(req, res) {
     try {
       const { id } = req.params;
-      const { nom, prenom, classeId, adminId, adminRole } = req.body; // Get classId for FK reference
+      const { nom, prenom, classeId } = req.body.eleve; // Get classId for FK reference
+
+      const adminId = req.body.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
+      const adminRole = req.body.adminRole;
 
       const eleve = await Eleve.findByPk(id);
 
