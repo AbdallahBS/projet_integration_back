@@ -3,7 +3,7 @@ const Classe = require('./classe.model');
 const EnseignantClasse = require('./enseignantClasse.model');
 const Historique = require('./historique.model'); // Import Historique model
 const Admin = require('./admin.model'); // Adjust the path as necessary
-const Enseignant = require('./Enseignant.model');
+const Enseignant = require('./enseignant.model');
 
 // Set up associations after all models are defined
 

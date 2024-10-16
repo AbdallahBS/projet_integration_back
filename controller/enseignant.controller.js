@@ -1,14 +1,16 @@
-const Enseignant = require('../models/Enseignant.model');
+const Enseignant = require('../models/enseignant.model');
 const Classe = require('../models/classe.model'); // Assuming this is the model file
 const EnseignantClasse = require('../models/enseignantClasse.model'); // Assuming this is the model file
+const Historique = require('../models/historique.model'); // Adjust the path as needed
 
 // Create a new Enseignant and associate with classes
 const createEnseignant = async (req, res) => {
-  const { nom, prenom, numerotel, classeIds, matiere } = req.body;
-
+  const { nom, prenom, numerotel, classeIds, matiere , adminId, adminRole } = req.body;
+ console.log("here",classeIds);
+ 
   try {
     // Create a new Enseignant
-    const enseignant = await Enseignant.create({ nom, prenom, numerotel });
+    const enseignant = await Enseignant.create({ nom, prenom, numerotel  });
 
     // Associate the Enseignant with Classes if classeIds are provided
     if (classeIds && classeIds.length > 0) {
@@ -19,6 +21,12 @@ const createEnseignant = async (req, res) => {
       }));
       await EnseignantClasse.bulkCreate(enseignantClasses);
     }
+    await Historique.create({
+      adminId: adminId, // ID of the admin performing the action
+      role: adminRole, // Role of the admin
+      typeofaction: `${nom} ${prenom} إضافة مدرس`, // Arabic for 'add class'
+      time: new Date(), // Current time of the action
+    });
 
     return res.status(201).json({ message: 'Enseignant created successfully', enseignant });
   } catch (error) {
@@ -71,7 +79,7 @@ const getEnseignantById = async (req, res) => {
 // Update an Enseignant by ID
 const updateEnseignant = async (req, res) => {
   const { id } = req.params;
-  const { nom, prenom, numerotel, classeIds, matiere } = req.body;
+  const { nom, prenom, numerotel, classeIds, matiere,adminId, adminRole  } = req.body;
 
   try {
     const enseignant = await Enseignant.findByPk(id);
@@ -85,7 +93,12 @@ const updateEnseignant = async (req, res) => {
     enseignant.numerotel = numerotel;
 
     await enseignant.save();
-
+    await Historique.create({
+      adminId: adminId, // ID of the admin performing the action
+      role: adminRole, // Role of the admin
+      typeofaction: ` ${nom}  ${prenom}  قام بالتغيير في معطيات المدرس`, // Arabic for 'add class'
+      time: new Date(), // Current time of the action
+    });
     // Update associated classes
     await EnseignantClasse.destroy({ where: { enseignantId: enseignant.id } });
     if (classeIds && classeIds.length > 0) {
@@ -107,7 +120,8 @@ const updateEnseignant = async (req, res) => {
 // Delete an Enseignant by ID
 const deleteEnseignant = async (req, res) => {
   const { id } = req.params;
-
+  const adminId = req.headers.adminid; // Retrieve adminId from headers
+  const adminRole = req.headers.adminrole;  
   try {
     const enseignant = await Enseignant.findByPk(id);
     if (!enseignant) {
@@ -117,7 +131,12 @@ const deleteEnseignant = async (req, res) => {
     await enseignant.destroy();
     // Optionally, you can also delete related records in EnseignantClasse
     await EnseignantClasse.destroy({ where: { enseignantId: enseignant.id } });
-
+    await Historique.create({
+      adminId: adminId, // ID of the admin performing the action
+      role: adminRole, // Role of the admin
+      typeofaction: `قام بحدف  مدرس من قاعدة البيانات`, // Arabic for 'add class'
+      time: new Date(), // Current time of the action
+    });
     res.status(200).json({ message: 'Enseignant deleted successfully' });
   } catch (error) {
     console.error('Error deleting enseignant:', error);

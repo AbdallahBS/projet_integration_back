@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db/database'); // Assuming you have a configured Sequelize instance
-const Enseignant = require('./Enseignant.model');
+const Enseignant = require('./enseignant.model');
 const Classe = require('./classe.model');
 
 // Define the junction table for Enseignant and Classe with Matière

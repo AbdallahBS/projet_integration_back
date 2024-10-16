@@ -1,34 +1,40 @@
 const Eleve = require('../models/eleve.model'); // Adjust the path if necessary
 const Classe = require('../models/classe.model'); // Import Classe model
+const Historique = require('../models/historique.model'); // Adjust the path as needed
 
 // Controller to manage Eleves
 const eleveController = {
   // Create a new Eleve
   async createEleve(req, res) {
-
     try {
-      const { nom, prenom, classeId } = req.body; // Only classId is taken for FK reference
-
-      // Create a new Eleve instance
+      const { nom, prenom, classe,adminId, adminRole  } = req.body;
+      const classeId = classe; // Extract class ID for FK reference
+  
+      // Check if an Eleve with the same nom, prenom, and classeId already exists
+      const existingEleve = await Eleve.findOne({
+        where: { nom, prenom, classeId }
+      });
+   
+      if (existingEleve) {
+        // If the Eleve already exists, return a conflict status
+        return res.status(409).json({ message: 'Cet élève existe déjà dans cette classe' });
+      }
+  
+      // Create a new Eleve instance if no duplicate is found
       const newEleve = await Eleve.create({ nom, prenom, classeId });
-      const adminId = req.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
-      const role = req.adminRole  // Assuming the admin's role is available in the request
-      console.log(role,adminId,nom);
-      
       await Historique.create({
-        adminId: adminId,               // ID of the admin performing the action
-        role: role,                     // Role of the admin
-        typeofaction: 'إضافة تلميذ',   // Arabic for 'add student'
-        time: new Date()                // Current time of the action
+        adminId: adminId, // ID of the admin performing the action
+        role: adminRole, // Role of the admin
+        typeofaction: ` ${nom}  ${prenom}  قام بترسيم التلميد`, // Arabic for 'add class'
+        time: new Date(), // Current time of the action
       });
       return res.status(201).json({ message: 'Élève créé avec succès', eleve: newEleve });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Erreur lors de la création de l\'élève', error });
     }
-
-
-  },
+  }
+  ,
 
   // Get all Eleves
   async getAllEleves(req, res) {
@@ -95,7 +101,7 @@ console.log(Classe.associations);
   async updateEleve(req, res) {
     try {
       const { id } = req.params;
-      const { nom, prenom, classeId } = req.body; // Get classId for FK reference
+      const { nom, prenom, classeId ,adminId, adminRole } = req.body; // Get classId for FK reference
 
       const eleve = await Eleve.findByPk(id);
 
@@ -107,7 +113,12 @@ console.log(Classe.associations);
       eleve.prenom = prenom;
       eleve.classeId = classeId; // Update the foreign key
       await eleve.save();
-
+      await Historique.create({
+        adminId: adminId, // ID of the admin performing the action
+        role: adminRole, // Role of the admin
+        typeofaction: ` ${nom}  ${prenom}  قام بالتغيير في معطيات التلميد`, // Arabic for 'add class'
+        time: new Date(), // Current time of the action
+      });
       return res.status(200).json({ message: 'Élève mis à jour avec succès', eleve });
     } catch (error) {
       console.error(error);
@@ -119,7 +130,8 @@ console.log(Classe.associations);
   async deleteEleve(req, res) {
     try {
       const { id } = req.params;
-
+      const adminId = req.headers.adminid; // Retrieve adminId from headers
+      const adminRole = req.headers.adminrole;  
       const eleve = await Eleve.findByPk(id);
 
       if (!eleve) {
@@ -127,6 +139,12 @@ console.log(Classe.associations);
       }
 
       await eleve.destroy();
+      await Historique.create({
+        adminId: adminId, // ID of the admin performing the action
+        role: adminRole, // Role of the admin
+        typeofaction: ` قام بحدف تلميد من قاعدة البيانات `, // Arabic for 'add class'
+        time: new Date(), // Current time of the action
+      });
       return res.status(200).json({ message: 'Élève supprimé avec succès' });
     } catch (error) {
       console.error(error);

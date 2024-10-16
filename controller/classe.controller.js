@@ -10,26 +10,32 @@ const classeController = {
   // Create a new class
   async createClasse(req, res) {
     try {
-      const { nomDeClasse, niveau } = req.body;
+      const { nomDeClasse, niveau, adminId, adminRole } = req.body;
+  
+      // Check if the class already exists
+      const existingClasse = await Classe.findOne({ where: { nomDeClasse, niveau } });
+      if (existingClasse) {
+        return res.status(409).json({ message: 'Cette classe existe déjà.' }); // Return a bad request error
+      }
+  
+      // Create a new class
       const newClasse = await Classe.create({ nomDeClasse, niveau });
-
-
-      const adminId = req.body.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
-      const role = req.body.adminRole  // Assuming the admin's role is available in the request
-      console.log(adminId,role);
-      
+  
+      // Log the action in the Historique
       await Historique.create({
-        adminId: adminId,               // ID of the admin performing the action
-        role: role,                     // Role of the admin
-        typeofaction: 'إضافة قسم',   // Arabic for 'add student'
-        time: new Date()                // Current time of the action
+        adminId: adminId, // ID of the admin performing the action
+        role: adminRole, // Role of the admin
+        typeofaction: `${nomDeClasse} إضافة قسم`, // Arabic for 'add class'
+        time: new Date(), // Current time of the action
       });
+  
       res.status(201).json({ message: 'Class created successfully', classe: newClasse });
     } catch (error) {
       console.error('Error creating class:', error);
       res.status(500).json({ message: 'Error creating class', error: error.message });
     }
   },
+  
 // Get all classes with the number of students and teachers
 async getAllClassesDetails(req, res) {
   try {
@@ -133,9 +139,11 @@ async getClassesByNiveau(req, res) {
 
   // Update a class
   async updateClasse(req, res) {
+
+    
     try {
       const { id } = req.params;
-      const { nomDeClasse, niveau } = req.body;
+      const { nomDeClasse, niveau ,adminId, adminRole} = req.body;
       const [updatedRowsCount, updatedClasses] = await Classe.update(
         { nomDeClasse, niveau },
         { where: { id }, returning: true }
@@ -144,7 +152,13 @@ async getClassesByNiveau(req, res) {
       if (updatedRowsCount === 0) {
         return res.status(404).json({ message: 'Class not found' });
       }
-
+      await Historique.create({
+        adminId: adminId, // ID of the admin performing the action
+        role: adminRole, // Role of the admin
+        typeofaction: `${nomDeClasse} تعديل قسم`, // Arabic for 'update class'
+        time: new Date(), // Current time of the action
+      });
+  
       res.status(200).json({ message: 'Class updated successfully', classe: updatedClasses[0] });
     } catch (error) {
       console.error('Error updating class:', error);
@@ -156,8 +170,16 @@ async getClassesByNiveau(req, res) {
   async deleteClasse(req, res) {
     try {
       const { id } = req.params;
-      const deletedRowsCount = await Classe.destroy({ where: { id } });
+      const adminId = req.headers.adminid; // Retrieve adminId from headers
+      const adminRole = req.headers.adminrole;      const deletedRowsCount = await Classe.destroy({ where: { id } });
       if (deletedRowsCount) {
+        await Historique.create({
+          adminId: adminId, // ID of the admin performing the action
+          role: adminRole, // Role of the admin
+          typeofaction: ` حدف قسم من قاعدة البيانات`, // Arabic for 'update class'
+          time: new Date(), // Current time of the action
+        });
+    
         res.status(200).json({ message: 'Class deleted successfully' });
       } else {
         res.status(404).json({ message: 'Class not found' });

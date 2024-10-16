@@ -1,4 +1,4 @@
-const Enseignant = require('../models/Enseignant.model');
+const Enseignant = require('../models/enseignant.model');
 const Classe = require('../models/classe.model');
 const EnseignantClasse = require('../models/enseignantClasse.model');
 const sequelize = require('../db/database'); // Assuming you have a config for your Sequelize instance
