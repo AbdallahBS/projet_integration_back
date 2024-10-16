@@ -74,9 +74,7 @@ const eleveController = {
   async getElevesByClasseId(req, res) {
     try {
       const { classeId } = req.params;
-      console.log(Eleve.associations);
-      console.log(Classe.associations);
-      console.log(classeId);
+  
       // Get the classeId from the request parameters
       const eleves = await Eleve.findAll({
         where: { classeId }, // Filter by classeId
@@ -90,8 +88,19 @@ const eleveController = {
       if (eleves.length === 0) {
         return res.status(404).json({ message: 'Aucun élève trouvé pour cette classe' });
       }
-
-      return res.status(200).json(eleves);
+      const formattedStudents = eleves.map(student => ({
+        id: student.id, // Assuming the ID is a number; if it's a string, adjust accordingly
+        nom: student.nom,
+        prenom: student.prenom,
+        classe: {
+            id: student.classe.id, // Assuming `classe` is an object with an ID
+            nomDeClasse: student.classe.nomDeClasse,
+            niveau: student.classe.niveau,
+            createdAt: student.classe.createdAt,
+            updatedAt: student.classe.updatedAt,
+        },
+    }));
+      return res.status(200).json(formattedStudents);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ message: 'Erreur lors de la récupération des élèves pour la classe', error });
