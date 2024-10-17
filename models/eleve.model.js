@@ -5,7 +5,7 @@ const Classe = require('./classe.model'); // Import the Classe model
 const Eleve = sequelize.define('Eleve', {
   id: {
     type: DataTypes.UUID, // Using UUID for the id
-    defaultValue: DataTypes.UUIDV4,   
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
     allowNull: false,
   },
@@ -14,6 +14,10 @@ const Eleve = sequelize.define('Eleve', {
     allowNull: false,
   },
   prenom: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  sexe: {
     type: DataTypes.STRING,
     allowNull: false,
   },
@@ -35,7 +39,7 @@ const Eleve = sequelize.define('Eleve', {
 
 //Eleve.belongsTo(Classe, {
 ///  foreignKey: 'classeId',
- // as: 'classe',
+// as: 'classe',
 //});
 
 module.exports = Eleve;

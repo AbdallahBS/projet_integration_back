@@ -5,12 +5,12 @@ const Historique = require('../models/historique.model'); // Adjust the path as 
 
 // Create a new Enseignant and associate with classes
 const createEnseignant = async (req, res) => {
-  const { nom, prenom, numerotel, classeIds, matiere , adminId, adminRole } = req.body;
- console.log("here",classeIds);
- 
+  const { nom, prenom, numerotel, sexe, classeIds, matiere, adminId, adminRole } = req.body;
+  console.log("here", classeIds);
+
   try {
     // Create a new Enseignant
-    const enseignant = await Enseignant.create({ nom, prenom, numerotel  });
+    const enseignant = await Enseignant.create({ nom, prenom, numerotel, sexe });
 
     // Associate the Enseignant with Classes if classeIds are provided
     if (classeIds && classeIds.length > 0) {
@@ -79,7 +79,7 @@ const getEnseignantById = async (req, res) => {
 // Update an Enseignant by ID
 const updateEnseignant = async (req, res) => {
   const { id } = req.params;
-  const { nom, prenom, numerotel, classeIds, matiere,adminId, adminRole  } = req.body;
+  const { nom, prenom, numerotel, sexe, classeIds, matiere, adminId, adminRole } = req.body;
 
   try {
     const enseignant = await Enseignant.findByPk(id);
@@ -91,6 +91,7 @@ const updateEnseignant = async (req, res) => {
     enseignant.nom = nom;
     enseignant.prenom = prenom;
     enseignant.numerotel = numerotel;
+    enseignant.sexe = sexe;
 
     await enseignant.save();
     await Historique.create({
@@ -121,7 +122,7 @@ const updateEnseignant = async (req, res) => {
 const deleteEnseignant = async (req, res) => {
   const { id } = req.params;
   const adminId = req.headers.adminid; // Retrieve adminId from headers
-  const adminRole = req.headers.adminrole;  
+  const adminRole = req.headers.adminrole;
   try {
     const enseignant = await Enseignant.findByPk(id);
     if (!enseignant) {

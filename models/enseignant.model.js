@@ -20,6 +20,10 @@ const Enseignant = sequelize.define('Enseignant', {
     type: DataTypes.STRING,
     allowNull: false, // Assuming phone number is required
   },
+  sexe: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
 
 }, {
   timestamps: true,

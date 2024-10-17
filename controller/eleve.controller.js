@@ -8,10 +8,10 @@ const eleveController = {
   // Create a new Eleve
   async createEleve(req, res) {
     try {
-      const { nom, prenom, classeId } = req.body.eleve; // Only classId is taken for FK reference
+      const { nom, prenom, sexe, classeId } = req.body.eleve; // Only classId is taken for FK reference
 
       const existingEleve = await Eleve.findOne({
-        where: { nom, prenom, classeId }
+        where: { nom, prenom, sexe, classeId }
       });
 
       if (existingEleve) {
@@ -20,7 +20,7 @@ const eleveController = {
       }
 
       // Create a new Eleve instance
-      const newEleve = await Eleve.create({ nom, prenom, classeId });
+      const newEleve = await Eleve.create({ nom, prenom, sexe, classeId });
       const adminId = req.body.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
       const adminRole = req.body.adminRole  // Assuming the admin's role is available in the request
 
@@ -74,7 +74,7 @@ const eleveController = {
   async getElevesByClasseId(req, res) {
     try {
       const { classeId } = req.params;
-  
+
       // Get the classeId from the request parameters
       const eleves = await Eleve.findAll({
         where: { classeId }, // Filter by classeId
@@ -93,13 +93,13 @@ const eleveController = {
         nom: student.nom,
         prenom: student.prenom,
         classe: {
-            id: student.classe.id, // Assuming `classe` is an object with an ID
-            nomDeClasse: student.classe.nomDeClasse,
-            niveau: student.classe.niveau,
-            createdAt: student.classe.createdAt,
-            updatedAt: student.classe.updatedAt,
+          id: student.classe.id, // Assuming `classe` is an object with an ID
+          nomDeClasse: student.classe.nomDeClasse,
+          niveau: student.classe.niveau,
+          createdAt: student.classe.createdAt,
+          updatedAt: student.classe.updatedAt,
         },
-    }));
+      }));
       return res.status(200).json(formattedStudents);
     } catch (error) {
       console.error(error);
@@ -113,7 +113,7 @@ const eleveController = {
   async updateEleve(req, res) {
     try {
       const { id } = req.params;
-      const { nom, prenom, classeId } = req.body.eleve; // Get classId for FK reference
+      const { nom, prenom, sexe, classeId } = req.body.eleve; // Get classId for FK reference
 
       const adminId = req.body.adminId; // Assuming the admin's ID is available in the request (e.g., via authentication)
       const adminRole = req.body.adminRole;
@@ -126,6 +126,7 @@ const eleveController = {
 
       eleve.nom = nom;
       eleve.prenom = prenom;
+      eleve.sexe = sexe;
       eleve.classeId = classeId; // Update the foreign key
       await eleve.save();
       await Historique.create({
