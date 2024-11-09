@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const Admin = require('../models/admin.model');
+const { Op } = require('sequelize');
 
 // Create a new Admin (with bcrypt password hashing)
 const createAdmin = async (req, res) => {
@@ -37,10 +38,16 @@ const createAdmin = async (req, res) => {
     }
 };
 
-// Get all Admins
 const getAdmins = async (req, res) => {
     try {
-        const admins = await Admin.findAll();
+        const { excludeId } = req.query; // Get the admin ID from the query parameters
+        const admins = await Admin.findAll({
+            where: {
+                id: {
+                    [Op.ne]: excludeId // Exclude the admin with the provided ID
+                }
+            }
+        });
         res.status(200).json(admins);
     } catch (error) {
         console.error(error.message);

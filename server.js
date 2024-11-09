@@ -12,6 +12,8 @@ const enseignantRoutes = require('./routes/enseignant.routes');  //
 const classeRoutes = require('./routes/classe.routes');  // 
 const enseignantClasseRoutes = require('./routes/enseignantClasse.routes');  // 
 const dashboardRoutes = require('./routes/dashbord.routes');
+const etudeRoutes = require('./routes/etude.routes');
+const matiereRoutes = require('./routes/matiere.routes'); // Adjust the path as necessary
 
 
 const app = express();
@@ -38,8 +40,9 @@ app.use('/auth', authRoutes);
 app.use('/enseignants', enseignantRoutes);
 app.use('/api', adminRoutes);
 app.use('/enseignantClasse', enseignantClasseRoutes);
-
+app.use('/api', etudeRoutes);
 app.use('/api', dashboardRoutes);
+app.use('/api', matiereRoutes); // All routes under '/api' will be handled by matiereRoutes
 
 
 const startServer = async () => {

@@ -7,6 +7,8 @@ const Historique = require('../models/historique.model'); // Adjust the path as 
 const eleveController = {
   // Create a new Eleve
   async createEleve(req, res) {
+   
+    
     try {
       const { nom, prenom, sexe, classeId } = req.body.eleve; // Only classId is taken for FK reference
 
