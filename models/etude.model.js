@@ -13,10 +13,7 @@ const Etude = sequelize.define('Etude', {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    dayOfWeek: {
-      type: DataTypes.STRING,
-      allowNull: false,  // e.g., "Saturday"
-    },
+
     startTime: {
       type: DataTypes.TIME,
       allowNull: false,  // e.g., "08:00"
@@ -33,13 +30,9 @@ const Etude = sequelize.define('Etude', {
         key: 'id',
       },
     },
-    matiereId: {
-      type: DataTypes.UUID,
+    matiere: {
+      type: DataTypes.STRING,
       allowNull: false,
-      references: {
-        model: Matiere,
-        key: 'id',
-      },
     },
   }, {
     timestamps: true,

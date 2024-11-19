@@ -6,7 +6,6 @@ const Admin = require('./admin.model'); // Adjust the path as necessary
 const Enseignant = require('./enseignant.model');
 const Etude = require('./etude.model');
 const Seance = require('./seance.model');
-const Matiere = require('./matiere.model');
 const Attendance = require('./attendance.model'); // Import Attendance model
 
 // Set up associations after all models are defined
@@ -26,8 +25,7 @@ Classe.belongsToMany(Enseignant, { through: EnseignantClasse, foreignKey: 'class
 Etude.belongsTo(Enseignant, { foreignKey: 'enseignantId', as: 'enseignant' });
 Enseignant.hasMany(Etude, { foreignKey: 'enseignantId', as: 'etudes' });
 
-Etude.belongsTo(Matiere, { foreignKey: 'matiereId', as: 'matiere' });
-Matiere.hasMany(Etude, { foreignKey: 'matiereId', as: 'etudes' });
+
 
 // Many-to-Many: Etude <-> Eleve
 Etude.belongsToMany(Eleve, { through: 'EleveEtudes', foreignKey: 'etudeId', as: 'eleves' });
@@ -80,7 +78,6 @@ module.exports = {
   Historique,
   Etude,
   Seance,
-  Matiere,
   Attendance,
   initModels,
 };

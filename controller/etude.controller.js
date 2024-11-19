@@ -2,22 +2,23 @@ const Etude = require('../models/etude.model');
 const Seance = require('../models/seance.model');
 const Eleve = require('../models/eleve.model');
 const Attendance = require('../models/attendance.model');
-
+const Enseignant = require('../models/enseignant.model');
 const moment = require('moment');
 
 // Create an Etude with associated Seances
 exports.createEtudeWithSeances = async (req, res) => {
   try {
-    const { niveau, dayOfWeek, startTime, endTime, enseignantId, matiereId, seanceDates } = req.body;
-
+    // Extract fields from the request body
+    const { niveau, startTime, endTime, enseignantId, matiere, seanceDates } = req.body;
+ console.log(niveau, startTime, endTime, enseignantId, matiere, seanceDates);
+ 
     // Create the Etude
     const etude = await Etude.create({
       niveau,
-      dayOfWeek,
       startTime,
       endTime,
       enseignantId,
-      matiereId,
+      matiere,
     });
 
     // Convert the seanceDates to valid ISO date format
@@ -30,6 +31,7 @@ exports.createEtudeWithSeances = async (req, res) => {
       )
     );
 
+    // Send the response with created Etude and Seances
     res.status(201).json({ etude, seances });
   } catch (error) {
     console.error(error);
@@ -76,7 +78,18 @@ exports.addElevesToEtude = async (req, res) => {
 exports.getAllEtudes = async (req, res) => {
   try {
     const etudes = await Etude.findAll({
-      include: Seance, // Include associated Seances
+      include: [
+        {
+          model: Seance,
+          as: 'seances', // Specify the alias used in the association
+        },
+        {
+          model: Enseignant, // Include the Enseignant model
+          as: 'enseignant', // Specify the alias for the Enseignant association
+          attributes: ['nom', 'prenom'], // Select only the 'nom' and 'prenom' attributes
+        },
+      ], //
+       // Include associated Seances
     });
     res.status(200).json(etudes);
   } catch (error) {

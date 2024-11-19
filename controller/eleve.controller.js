@@ -169,6 +169,53 @@ const eleveController = {
       return res.status(500).json({ message: 'Erreur lors de la suppression de l\'élève', error });
     }
   },
+
+
+
+
+
+
+
+
+  
+  // Get students by niveau
+  async getStudentsByNiveau (req, res) {
+    const { niveau } = req.params;
+  
+    try {
+      // Step 1: Fetch all classes with the given niveau
+      const classes = await Classe.findAll({
+        where: { niveau },
+        attributes: ['id'], // Only fetch the class IDs
+      });
+  
+      if (!classes.length) {
+        return res.status(404).json({ message: 'No classes found for the specified niveau.' });
+      }
+  
+      // Extract class IDs
+      const classIds = classes.map((classe) => classe.id);
+  
+      // Step 2: Fetch all students linked to the class IDs
+      const students = await Eleve.findAll({
+        where: { classeId: classIds },
+        attributes: ['id', 'nom', 'prenom', 'sexe', 'classeId'], // Customize fields as needed
+      });
+  
+      // Step 3: Return the list of students
+      res.status(200).json(students);
+    } catch (error) {
+      console.error('Error fetching students by niveau:', error);
+      res.status(500).json({ message: 'An error occurred while fetching students.' });
+    }
+  },
+  
+
+  
+
+  
 };
+
+
 
 module.exports = eleveController;
