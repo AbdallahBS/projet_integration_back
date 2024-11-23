@@ -74,6 +74,112 @@ exports.addElevesToEtude = async (req, res) => {
       res.status(500).json({ error: 'Failed to add students to Etude' });
     }
   };
+
+
+  exports.getElevesFromEtude = async (req, res) => {
+    try {
+      const { etudeId } = req.params; // Extract Etude ID from the request params
+  
+      // Fetch the Etude with associated Eleves, Attendances, and Seances
+      const etude = await Etude.findByPk(etudeId, {
+        include: [
+          {
+            model: Eleve,
+            as: 'etudeEleves', // Alias for Eleves in the Etude
+            through: { attributes: [] }, // Exclude junction table data
+            include: [
+              {
+                model: Attendance,
+                as: 'attendances',
+               // Filter Attendance records by Etude ID
+                // Alias for Attendance
+                include: [
+                  {
+                    model: Seance,
+                    as: 'seance',
+                    where: { etudeId },  // Include Seance details
+                    attributes: ['id', 'date'], // Limit Seance fields
+                  },
+                ],
+                attributes: ['id', 'attendanceStatus'], // Limit Attendance fields
+              },
+            ],
+          },
+        ],
+      });
+  
+      // If the Etude is not found
+      if (!etude) {
+        return res.status(404).json({ error: 'Etude not found' });
+      }
+  
+      // Retrieve associated Eleves along with their Attendance and Seance data
+      const eleves = etude.etudeEleves.map((eleve) => {
+        // Sort attendances chronologically by Seance date
+        const sortedAttendances = eleve.attendances.sort((a, b) => {
+          const dateA = new Date(a.seance.date);
+          const dateB = new Date(b.seance.date);
+          return dateA - dateB; // Sort in ascending order
+        });
+  
+        return {
+          id: eleve.id,
+          nom: eleve.nom,
+          prenom: eleve.prenom,
+          attendances: sortedAttendances.map((attendance) => ({
+            attendanceId: attendance.id,
+            status: attendance.attendanceStatus,
+            seance: {
+              id: attendance.seance?.id,
+              date: attendance.seance?.date,
+            },
+          })),
+        };
+      });
+  
+      res.status(200).json({
+        etudeId,
+        eleves, // List of students with their attendance and seance data
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to retrieve students and attendance data from Etude' });
+    }
+  };
+  
+
+
+  exports.removeEleveFromEtude = async (req, res) => {
+    try {
+      const { etudeId, eleveId } = req.params;
+  
+      // Find the Etude instance
+      const etude = await Etude.findByPk(etudeId);
+      if (!etude) {
+        return res.status(404).json({ error: 'Etude not found' });
+      }
+  
+      // Find the Eleve instance
+      const eleve = await Eleve.findByPk(eleveId);
+      if (!eleve) {
+        return res.status(404).json({ error: 'Eleve not found' });
+      }
+  
+      // Use the correct method to remove the association
+      await etude.removeEtudeEleves(eleve);
+  
+      res.status(200).json({
+        message: `Eleve with ID ${eleveId} successfully removed from Etude with ID ${etudeId}`,
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Failed to remove Eleve from Etude' });
+    }
+  };
+  
+  
+
+
 // Get all Etudes with associated Seances
 exports.getAllEtudes = async (req, res) => {
   try {
@@ -179,67 +285,71 @@ exports.deleteEtude = async (req, res) => {
 
 
 exports.markAttendance = async (req, res) => {
-    const { etudeId, seanceId } = req.params;
-    const { attendance } = req.body; 
-  
-    try {
-      // Find the Etude by ID
-      const etude = await Etude.findByPk(etudeId, {
-        include: [{ model: Eleve, as: 'eleves' }] // Ensure correct alias
+  const { etudeId, seanceId } = req.params;
+  const { attendance } = req.body;
+
+  try {
+    // Validate Etude and Seance existence
+    const etude = await Etude.findByPk(etudeId, {
+      include: [{ model: Eleve, as: 'eleves' }],
+    });
+
+    if (!etude) {
+      return res.status(404).json({ error: 'Etude not found' });
+    }
+
+    const seance = await Seance.findByPk(seanceId);
+    if (!seance) {
+      return res.status(404).json({ error: 'Seance not found' });
+    }
+
+    // Process attendance for each student
+    const updates = attendance.map(async ({ eleveId, attendanceStatus }) => {
+      const eleve = await Eleve.findByPk(eleveId);
+      if (!eleve) {
+        return { error: `Eleve with ID ${eleveId} not found` };
+      }
+
+      // Validate if the Eleve is enrolled in this Etude
+      const eleves = await etude.getEleves();
+      const isEnrolled = eleves.some((e) => e.id === eleveId);
+      if (!isEnrolled) {
+        return { error: `Eleve with ID ${eleveId} is not enrolled in this Etude` };
+      }
+
+      // Check if attendance record exists
+      const attendanceRecord = await Attendance.findOne({
+        where: { eleveId, seanceId },
       });
-  
-      if (!etude) {
-        return res.status(404).json({ error: 'Etude not found' });
-      }
-  
-      // Find the Seance by ID
-      const seance = await Seance.findByPk(seanceId);
-      if (!seance) {
-        return res.status(404).json({ error: 'Seance not found' });
-      }
-  
-      // Loop through each attendance record and update
-      const updates = attendance.map(async ({ eleveId, attendanceStatus }) => {
-        // Check if the Eleve exists
-        const eleve = await Eleve.findByPk(eleveId);
-        if (!eleve) {
-          return { error: `Eleve with ID ${eleveId} not found` };
-        }
-  
-        // Check if the Eleve is enrolled in the Etude
-        const eleves = await etude.getEleves(); // Get the Eleves enrolled in the Etude
-        const isEnrolled = eleves.some(e => e.id === eleveId); // Check if the Eleve is in the list of enrolled Eleves
-  
-        if (!isEnrolled) {
-          return { error: `Eleve with ID ${eleveId} is not enrolled in this Etude` };
-        }
-    console.log(attendanceStatus);
-    
-        // Mark the attendance for the Eleve in the specific Seance
-        await Attendance.upsert({
+
+      if (attendanceRecord) {
+        // If exists, update the record
+        await attendanceRecord.update({ attendanceStatus });
+      } else {
+        // If not exists, create with default 'present' status
+        await Attendance.create({
           eleveId,
           seanceId,
-          etudeId,
-          attendanceStatus,
-          date: moment().format('YYYY-MM-DD'), // today's date
+          attendanceStatus: attendanceStatus || 'present',
+          date: moment().format('YYYY-MM-DD'), // Default to today's date
         });
-  
-        return { eleveId, attendanceStatus };
-      });
-  
-      // Await all the updates to complete
-      const result = await Promise.all(updates);
-  
-      // Filter out any errors
-      const errors = result.filter(item => item.error);
-      if (errors.length > 0) {
-        return res.status(400).json({ errors });
       }
-  
-      res.status(200).json({ message: 'Attendance marked successfully', result });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Failed to mark attendance' });
+
+      return { eleveId, attendanceStatus };
+    });
+
+    // Wait for all operations to complete
+    const result = await Promise.all(updates);
+
+    // Collect errors if any
+    const errors = result.filter((item) => item.error);
+    if (errors.length > 0) {
+      return res.status(400).json({ errors });
     }
-  };
-  
+
+    res.status(200).json({ message: 'Attendance updated successfully', result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Failed to process attendance' });
+  }
+};

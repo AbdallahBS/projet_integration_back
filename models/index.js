@@ -42,6 +42,7 @@ Eleve.belongsToMany(Etude, { through: 'EleveEtudes', foreignKey: 'eleveId', as: 
 // Attendance associations
 Attendance.belongsTo(Eleve, { foreignKey: 'eleveId', as: 'eleve' });
 Attendance.belongsTo(Seance, { foreignKey: 'seanceId', as: 'seance' });
+Eleve.hasMany(Attendance, { foreignKey: 'eleveId', as: 'attendances' });
 
 Admin.hasMany(Historique, {
   foreignKey: 'adminId', // This should match the key in the Historique model

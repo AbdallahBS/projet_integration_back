@@ -3,7 +3,7 @@ const sequelize = require('../db/database');
 
 const Attendance = sequelize.define('Attendance', {
       attendanceStatus: {
-        type: DataTypes.ENUM('present', 'absent'),
+        type: DataTypes.ENUM('present', 'absent','absentwithreason'),
         allowNull: false,
       },
       // You can also add other fields like date if you want to track attendance on specific days

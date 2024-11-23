@@ -18,6 +18,10 @@ router.post('/etudes/:etudeId/seances/:seanceId/attendance', etudeController.mar
 // Get all Etudes with associated Seances 
 router.get('/etudes', etudeController.getAllEtudes);
 
+router.get('/etudes/:etudeId/eleves', etudeController.getElevesFromEtude);
+router.delete('/etudes/:etudeId/eleves/:eleveId', etudeController.removeEleveFromEtude);
+
+
 // Get a specific Etude by ID with associated Seances
 router.get('/etudes/:id', etudeController.getEtudeById);
 
