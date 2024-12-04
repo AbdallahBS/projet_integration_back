@@ -181,11 +181,11 @@ const eleveController = {
   // Get students by niveau
   async getStudentsByNiveau (req, res) {
     const { niveau } = req.params;
-  
+     const nomDeClasse = niveau
     try {
       // Step 1: Fetch all classes with the given niveau
       const classes = await Classe.findAll({
-        where: { niveau },
+        where: { nomDeClasse },
         attributes: ['id'], // Only fetch the class IDs
       });
   
