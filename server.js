@@ -18,8 +18,10 @@ const matiereRoutes = require('./routes/matiere.routes'); // Adjust the path as 
 
 const app = express();
 const port = 3000;
+const host = process.env.HOST;
+
 app.use(cors({
-  origin: 'http://localhost:4200', // Allow requests from Angular app
+  origin: `http://${process.env.HOST}:4200`, // Allow requests from Angular app
   credentials: true, // If you need to send cookies or authorization headers
 }));
 
@@ -57,8 +59,8 @@ const startServer = async () => {
     await sequelize.sync(); // Creates the tables if they do not exist (and does not remove existing ones)
     console.log('All models were synchronized successfully.');
 
-    app.listen(port, () => {
-      console.log(`Server running on http://localhost:${port}`);
+    app.listen(port, host, () => {
+      console.log(`Server running on http://${host}:${port}`);
     });
   } catch (error) {
     console.error('Unable to connect to the database:', error);
